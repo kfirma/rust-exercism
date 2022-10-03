@@ -40,7 +40,7 @@ pub enum Error {
 const MIN_BASE: u32 = 2;
 
 pub fn convert(number: &[u32], from_base: u32, to_base: u32) -> Result<Vec<u32>, Error> {
-    check_params(number, from_base, to_base)?;
+    check_parameters(number, from_base, to_base)?;
 
     if number.is_empty() {
         return Ok(vec![0]);
@@ -61,15 +61,14 @@ pub fn convert(number: &[u32], from_base: u32, to_base: u32) -> Result<Vec<u32>,
     // convert to target base
     let mut new_number = Vec::new();
     while number_as_base_10 > 0 {
-        new_number.push(number_as_base_10 % to_base);
+        new_number.insert(0, number_as_base_10 % to_base);
         number_as_base_10 /= to_base;
     }
 
-    new_number.reverse();
     Ok(new_number)
 }
 
-fn check_params(number: &[u32], from_base: u32, to_base: u32) -> Result<(), Error> {
+fn check_parameters(number: &[u32], from_base: u32, to_base: u32) -> Result<(), Error> {
     if from_base < MIN_BASE {
         return Err(Error::InvalidInputBase);
     }
