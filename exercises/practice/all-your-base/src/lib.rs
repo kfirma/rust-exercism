@@ -36,11 +36,50 @@ pub enum Error {
 ///  * Never output leading 0 digits, unless the input number is 0, in which the output must be `[0]`.
 ///    However, your function must be able to process input with leading 0 digits.
 ///
+
+const MIN_BASE: u32 = 2;
+
 pub fn convert(number: &[u32], from_base: u32, to_base: u32) -> Result<Vec<u32>, Error> {
-    unimplemented!(
-        "Convert {:?} from base {} to base {}",
-        number,
-        from_base,
-        to_base
-    )
+    check_parameters(number, from_base, to_base)?;
+
+    if number.is_empty() {
+        return Ok(vec![0]);
+    }
+
+    // digits to base 10 number
+    let mut number_as_base_10 = number
+        .iter()
+        .rev()
+        .enumerate()
+        .map(|(index, value)| value * from_base.pow(index as u32))
+        .sum::<u32>();
+
+    if number_as_base_10 == 0 {
+        return Ok(vec![0]);
+    }
+
+    // convert to target base
+    let mut new_number = Vec::new();
+    while number_as_base_10 > 0 {
+        new_number.insert(0, number_as_base_10 % to_base);
+        number_as_base_10 /= to_base;
+    }
+
+    Ok(new_number)
+}
+
+fn check_parameters(number: &[u32], from_base: u32, to_base: u32) -> Result<(), Error> {
+    if from_base < MIN_BASE {
+        return Err(Error::InvalidInputBase);
+    }
+
+    if to_base < MIN_BASE {
+        return Err(Error::InvalidOutputBase);
+    }
+
+    if let Some(&digit) = number.iter().find(|&&digit| digit >= from_base) {
+        return Err(Error::InvalidDigit(digit));
+    }
+
+    Ok(())
 }
